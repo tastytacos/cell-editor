@@ -42,6 +42,4 @@ public class CellEditorTableConstants {
         //names
         static final String DEFAULT_NAME = " New Table";
         static final String QH_EDITOR = " - QH-Editor";
-
-
 }

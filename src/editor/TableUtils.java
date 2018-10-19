@@ -164,11 +164,20 @@ public class TableUtils {
 
         try {
             newDefaultTableModel = converter.convert();
+            newDefaultTableModel.setColumnIdentifiers(CellEditorTableConstants.NAME_COLUMNS);
         } catch (TextTransferException e) {
             throw new TextTransferException(e.getMessage(), e.getCause());
         }
 
         return newDefaultTableModel;
+    }
+
+    public static List<Double> getListFromModelColumn(DefaultTableModel defaultTableModel, int column) {
+        List<Double> return_list = new ArrayList<>();
+        for (int i = 0; i < defaultTableModel.getRowCount(); i++){
+            return_list.add(Double.parseDouble(defaultTableModel.getValueAt(i, column).toString()));
+        }
+        return return_list;
     }
 }
 
