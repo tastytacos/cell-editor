@@ -1,6 +1,9 @@
 package editor;
 
 
+import creation.CellEditorMapPanel;
+import creation.CellEditorPanel;
+import creation.IUnit;
 import org.jfree.chart.ChartPanel;
 
 import javax.swing.*;
@@ -125,6 +128,28 @@ public class CellEditor implements ActionListener{
             @Override
             public void windowClosing(WindowEvent e) {
                 e.getWindow().dispose();
+            }
+        });
+    }
+
+    public CellEditor(final CellEditorMapPanel panel, final Object key){
+        IUnit unit = panel.getMap().get(key);
+        defaultTableModel = unit.getUnitDefaultTableModel();
+        initComponents();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (!(TableUtils.validData(defaultTableModel))){
+                    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                }else{
+                    List<Double> firstValue = TableUtils.getListFromModelColumn(defaultTableModel, 0);
+                    List<Double> secondValue = TableUtils.getListFromModelColumn(defaultTableModel, 1);
+                    unit.setUnitFirstValue(firstValue);
+                    unit.setUnitSecondValue(secondValue);
+                    unit.setUnitTableModel(defaultTableModel);
+                    panel.setMapElement(key, unit);
+                    e.getWindow().dispose();
+                }
             }
         });
     }
