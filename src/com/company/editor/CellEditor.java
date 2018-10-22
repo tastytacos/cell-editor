@@ -1,9 +1,9 @@
-package editor;
+package com.company.editor;
 
 
-import creation.CellEditorMapPanel;
-import creation.CellEditorPanel;
-import creation.IUnit;
+import com.company.creation.CellEditorMapPanel;
+import com.company.creation.CellEditorStringMapPanel;
+import com.company.creation.DoubleCellUnit;
 import org.jfree.chart.ChartPanel;
 
 import javax.swing.*;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 
 //todo provide mouse cursor control on table
-public class CellEditor implements ActionListener{
+public class CellEditor implements ActionListener {
     private String CURRENT_DIRECTORY_PATH = CellEditorTableConstants.CURRENT_DIRECTORY_PATH;
     private static String filename; // Used for Save button
     private static JFrame frame = new JFrame();
@@ -35,9 +35,9 @@ public class CellEditor implements ActionListener{
     private TableModelListener tableModelListener = new TableModelListener() {
         @Override
         public void tableChanged(TableModelEvent e) {
-            try{
+            try {
                 rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
-            }catch (NumberFormatException e1){
+            } catch (NumberFormatException e1) {
                 TableUtils.displayMessageOnScreen("Can't built the graph." + System.lineSeparator() + "The value on " +
                         (e.getFirstRow() + 1) + " row" + " and " + (e.getColumn() + 1) + " column is invalid");
             }
@@ -61,11 +61,11 @@ public class CellEditor implements ActionListener{
     public void actionPerformed(ActionEvent action) {
         switch (action.getActionCommand()) {
             case CellEditorTableConstants.PASTE_BUTTON_COMMAND:
-                try{
+                try {
                     defaultTableModel = TableUtils.paste(table);
                     rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
                     table.setModel(defaultTableModel);
-                }catch (TextTransferException e){
+                } catch (TextTransferException e) {
                     e.printStackTrace();
                 }
                 break;
@@ -132,16 +132,16 @@ public class CellEditor implements ActionListener{
         });
     }
 
-    public CellEditor(final CellEditorMapPanel panel, final Object key){
-        IUnit unit = panel.getMap().get(key);
+    public CellEditor(final CellEditorMapPanel panel, final Object key) {
+        DoubleCellUnit unit = panel.getMap().get(key);
         defaultTableModel = unit.getUnitDefaultTableModel();
         initComponents();
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (!(TableUtils.validData(defaultTableModel))){
+                if (!(TableUtils.validData(defaultTableModel))) {
                     frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                }else{
+                } else {
                     List<Double> firstValue = TableUtils.getListFromModelColumn(defaultTableModel, 0);
                     List<Double> secondValue = TableUtils.getListFromModelColumn(defaultTableModel, 1);
                     unit.setUnitFirstValue(firstValue);
@@ -198,7 +198,7 @@ public class CellEditor implements ActionListener{
         frame.setVisible(true);
     }
 
-    private JMenuBar initMenuBar(){
+    private JMenuBar initMenuBar() {
         JMenuBar topMenuBar = new JMenuBar();
         //
         UIManager.put("Menu.font", font);

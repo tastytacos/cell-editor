@@ -1,4 +1,4 @@
-package editor;
+package com.company.editor;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -12,7 +12,7 @@ import java.io.IOException;
  * This class uses the {@link Clipboard} class in order to get text which was copied/cut/pasted by the user and
  * provides handling it.
  */
-public class TextTransfer {
+class TextTransfer {
     /**
      * Get the String residing on the clipboard.
      * @return any text found on the {@link Clipboard}; if none found, return an

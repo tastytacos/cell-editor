@@ -1,9 +1,9 @@
-package editor;
+package com.company.editor;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
-public class CustomJFileChooser extends JFileChooser {
+class CustomJFileChooser extends JFileChooser {
     CustomJFileChooser(String currentDirrectoryPath){
         super(currentDirrectoryPath);
         this.addChoosableFileFilter(new XLSFileFilter());

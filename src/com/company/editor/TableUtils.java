@@ -1,4 +1,4 @@
-package editor;
+package com.company.editor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TableUtils {
+class TableUtils {
     private static Component component;
 
     public static void setComponent(Component component) {

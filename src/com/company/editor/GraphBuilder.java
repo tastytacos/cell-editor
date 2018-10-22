@@ -1,4 +1,4 @@
-package editor;
+package com.company.editor;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -12,7 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class GraphBuilder {
+class GraphBuilder {
 
     public static void displayXYLineGraph(DefaultTableModel tableModel) {
         JFrame graphFrame = new JFrame();

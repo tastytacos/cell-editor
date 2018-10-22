@@ -1,4 +1,4 @@
-package editor;
+package com.company.editor;
 
 class TextTransferException extends Exception {
     TextTransferException() {

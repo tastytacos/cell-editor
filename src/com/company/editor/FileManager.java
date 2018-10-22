@@ -1,4 +1,4 @@
-package editor;
+package com.company.editor;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.*;
 
 
-public abstract class FileManager {
+abstract class FileManager {
     public abstract void save(File file, DefaultTableModel tableModel) throws IOException;
     public abstract List<Double> load(File file) throws Exception;
     int findWorkSheet(Workbook workBook){

@@ -1,4 +1,4 @@
-package editor;
+package com.company.editor;
 
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
