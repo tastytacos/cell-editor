@@ -2,8 +2,8 @@ package com.company.creation;
 
 import java.util.Map;
 
-public abstract class CellEditorMapPanel extends CellEditorPanel{
-    public abstract Map<Object, DoubleCellUnit> getMap();
-    public abstract void setMapElement(Object key, DoubleCellUnit value);
+public abstract class CellEditorMapPanel<Key> extends CellEditorPanel{
+    public abstract Map<Key, DoubleCellUnit> getMap();
+    public abstract void setMapElement(Key key, DoubleCellUnit value);
 }
 

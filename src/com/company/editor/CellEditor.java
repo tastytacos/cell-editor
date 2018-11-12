@@ -2,7 +2,6 @@ package com.company.editor;
 
 
 import com.company.creation.CellEditorMapPanel;
-import com.company.creation.CellEditorStringMapPanel;
 import com.company.creation.DoubleCellUnit;
 import org.jfree.chart.ChartPanel;
 
@@ -23,10 +22,10 @@ import java.util.Map;
 //todo provide mouse cursor control on table
 public class CellEditor implements ActionListener {
     private String CURRENT_DIRECTORY_PATH = CellEditorTableConstants.CURRENT_DIRECTORY_PATH;
-    private static String filename; // Used for Save button
-    private static JFrame frame = new JFrame();
+    private String filename; // Used for Save button
+    private JFrame frame = new JFrame();
     private JTable table = new JTable();
-    private static DefaultTableModel defaultTableModel;
+    private DefaultTableModel defaultTableModel;
     private Map<String, FileManager> fileManagerHashMap = new HashMap<>();
     private ChartPanel rightChartPanel;
     private Font font = new Font("sans-serif", Font.PLAIN, CellEditorTableConstants.DEFAULT_FONT_SIZE);
@@ -123,6 +122,8 @@ public class CellEditor implements ActionListener {
 
 
     public CellEditor() {
+        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT, CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+        defaultTableModel.addTableModelListener(tableModelListener);
         initComponents();
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -133,8 +134,9 @@ public class CellEditor implements ActionListener {
     }
 
     public CellEditor(final CellEditorMapPanel panel, final Object key) {
-        DoubleCellUnit unit = panel.getMap().get(key);
-        defaultTableModel = unit.getUnitDefaultTableModel();
+        final DoubleCellUnit unit = (DoubleCellUnit) panel.getMap().get(key);
+        defaultTableModel = handleTableModel(unit.getUnitDefaultTableModel());
+        defaultTableModel.addTableModelListener(tableModelListener);
         initComponents();
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -153,6 +155,20 @@ public class CellEditor implements ActionListener {
             }
         });
     }
+
+    private DefaultTableModel handleTableModel(DefaultTableModel model) {
+        DefaultTableModel defaultTableModel;
+        if (model.getColumnCount() == 0){
+            defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
+                    CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+            // Otherwise just set already created model
+        }
+        else {
+            defaultTableModel = model;
+        }
+        return defaultTableModel;
+    }
+
 
     private void initComponents() {
         JButton plusButton, minusButton;
@@ -180,19 +196,14 @@ public class CellEditor implements ActionListener {
         topPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         topPanel.add(pasteButton);
         frame.add(topPanel, BorderLayout.NORTH);
-        // set table
-        // At start, the table is empty
-        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT, CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
-        defaultTableModel.addTableModelListener(tableModelListener);
-        //
-        rightChartPanel = new ChartPanel(GraphBuilder.getXYChart(defaultTableModel));
-        frame.add(rightChartPanel, BorderLayout.EAST);
         //
         table.setModel(defaultTableModel);
-        table.setAutoCreateRowSorter(true);     // automatically sorts when clicked on Column name
         table.getTableHeader().setFont(font);
         table.setFont(font);
         JScrollPane scroll_pane = new JScrollPane(table);
+        //
+        rightChartPanel = new ChartPanel(GraphBuilder.getXYChart(defaultTableModel));
+        frame.add(rightChartPanel, BorderLayout.EAST);
         //
         frame.add(scroll_pane, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -308,7 +319,7 @@ public class CellEditor implements ActionListener {
                         e.printStackTrace();
                     }
                     TableUtils.displayMessageOnScreen("The file is saved. " + System.lineSeparator() + " Data there is sorted!");
-                    CellEditor.filename = file.getAbsolutePath();
+                    filename = file.getAbsolutePath();
                 }
             }
         }
@@ -361,8 +372,8 @@ public class CellEditor implements ActionListener {
             }
 
             if (load_data != null) {
-                CellEditor.filename = file.getAbsolutePath();
-                frame.setTitle(CellEditor.filename + CellEditorTableConstants.QH_EDITOR);
+                filename = file.getAbsolutePath();
+                frame.setTitle(filename + CellEditorTableConstants.QH_EDITOR);
             }
             rows_amount = load_data.size() / 2;
             cols_amount = CellEditorTableConstants.DEFAULT_COLS_AMOUNT;

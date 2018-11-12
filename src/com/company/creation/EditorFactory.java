@@ -1,10 +1,15 @@
 package com.company.creation;
 
 import com.company.editor.CellEditor;
+import javafx.scene.control.Cell;
 
 import javax.swing.*;
 
 public class EditorFactory {
+    public static void main(String[] args){
+        new CellEditor();
+    }
+
     public static void getCellEditor(){
          SwingUtilities.invokeLater(new Runnable(){
             @Override

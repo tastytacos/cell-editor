@@ -41,5 +41,5 @@ class CellEditorTableConstants {
         static final String TXT_FORMAT = ".txt";
         //names
         static final String DEFAULT_NAME = " New Table";
-        static final String QH_EDITOR = " - QH-Editor";
+        static final String QH_EDITOR = " - Cell-Editor";
 }
