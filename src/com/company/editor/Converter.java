@@ -188,9 +188,9 @@ class ConverterUtils {
 
     private static ArrayList<String[]> getStringList(String string) {
         ArrayList<String[]> list = new ArrayList<>();
-        String[] row = string.split(System.lineSeparator());
+        String[] row = string.split("\\n");
         for (String element : row) {
-            list.add(element.split("\t"));  // because in Excel the separator between neighbour rows is \t
+            list.add(element.split("\\t"));  // because in Excel the separator between neighbour rows is \t
         }
         return list;
     }
