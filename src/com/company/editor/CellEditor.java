@@ -47,7 +47,7 @@ public class CellEditor implements ActionListener {
         frame.setBounds(CellEditorTableConstants.x_coordinate, CellEditorTableConstants.y_coordinate, CellEditorTableConstants.width, CellEditorTableConstants.height);
         filename = CellEditorTableConstants.DEFAULT_NAME;
         // setting the panel with save and load button
-        frame.setTitle(filename + CellEditorTableConstants.QH_EDITOR);
+        frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
 
         // initializing file managers
         fileManagerHashMap.put(CellEditorTableConstants.XLS_FORMAT, new XlsFile());
@@ -373,7 +373,7 @@ public class CellEditor implements ActionListener {
 
             if (load_data != null) {
                 filename = file.getAbsolutePath();
-                frame.setTitle(filename + CellEditorTableConstants.QH_EDITOR);
+                frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
             }
             rows_amount = load_data.size() / 2;
             cols_amount = CellEditorTableConstants.DEFAULT_COLS_AMOUNT;
