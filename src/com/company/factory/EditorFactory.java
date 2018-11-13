@@ -1,7 +1,6 @@
-package com.company.creation;
+package com.company.factory;
 
 import com.company.editor.CellEditor;
-import javafx.scene.control.Cell;
 
 import javax.swing.*;
 
