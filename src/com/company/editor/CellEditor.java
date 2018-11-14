@@ -14,6 +14,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,44 +31,19 @@ public class CellEditor implements ActionListener {
     private ChartPanel rightChartPanel;
     private Font font = new Font("sans-serif", Font.PLAIN, CellEditorTableConstants.DEFAULT_FONT_SIZE);
 
-    private HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
+    {
+        frame.setBounds(CellEditorTableConstants.x_coordinate, CellEditorTableConstants.y_coordinate, CellEditorTableConstants.width, CellEditorTableConstants.height);
+        filename = CellEditorTableConstants.DEFAULT_NAME;
+        // setting the panel with save and load button
+        frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
 
-    private void setup() {
-        KeyStroke key1 = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
-        actionMap.put(key1, new AbstractAction("action1") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Ctrl-V pressed: " + e);
-                try {
-                    defaultTableModel = TableUtils.paste(table);
-                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
-                    table.setModel(defaultTableModel);
-                } catch (TextTransferException exeption) {
-                    exeption.printStackTrace();
-                }
-            }
-        });
-
-        KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        kfm.addKeyEventDispatcher( new KeyEventDispatcher() {
-
-            @Override
-            public boolean dispatchKeyEvent(KeyEvent e) {
-                KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
-                if ( actionMap.containsKey(keyStroke) ) {
-                    final Action a = actionMap.get(keyStroke);
-                    final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), null );
-                    SwingUtilities.invokeLater( new Runnable() {
-                        @Override
-                        public void run() {
-                            a.actionPerformed(ae);
-                        }
-                    } );
-                    return true;
-                }
-                return false;
-            }
-        });
+        // initializing file managers
+        fileManagerHashMap.put(CellEditorTableConstants.XLS_FORMAT, new XlsFile());
+        fileManagerHashMap.put(CellEditorTableConstants.XLSX_FORMAT, new XlsxFile());
+        fileManagerHashMap.put(CellEditorTableConstants.TXT_FORMAT, new TXTFile());
+        //Next line provides displaying mistakes and messages on the appropriate screen
+        TableUtils.setComponent(frame);
+        initKeys();
     }
 
 
@@ -83,19 +59,41 @@ public class CellEditor implements ActionListener {
         }
     };
 
-    {
-        frame.setBounds(CellEditorTableConstants.x_coordinate, CellEditorTableConstants.y_coordinate, CellEditorTableConstants.width, CellEditorTableConstants.height);
-        filename = CellEditorTableConstants.DEFAULT_NAME;
-        // setting the panel with save and load button
-        frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
 
-        // initializing file managers
-        fileManagerHashMap.put(CellEditorTableConstants.XLS_FORMAT, new XlsFile());
-        fileManagerHashMap.put(CellEditorTableConstants.XLSX_FORMAT, new XlsxFile());
-        fileManagerHashMap.put(CellEditorTableConstants.TXT_FORMAT, new TXTFile());
-        //Next line provides displaying mistakes and messages on the appropriate screen
-        TableUtils.setComponent(frame);
-        setup();
+    private void initKeys() {
+        KeyStroke pasteHotKey = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+        KeyController.getActionMap().put(pasteHotKey, new AbstractAction("paste") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Ctrl-V pressed: " + e);
+                try {
+                    defaultTableModel = TableUtils.paste(table);
+                    defaultTableModel.addTableModelListener(tableModelListener);
+                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
+                    table.setModel(defaultTableModel);
+                } catch (TextTransferException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        });
+        //
+        KeyStroke addRowHotKey = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.ALT_DOWN_MASK);
+        KeyController.getActionMap().put(addRowHotKey, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                add_row();
+            }
+        });
+        //
+        KeyStroke deleteRowHotKey = KeyStroke.getKeyStroke(KeyEvent.VK_D, KeyEvent.ALT_DOWN_MASK);
+        KeyController.getActionMap().put(deleteRowHotKey, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                delete_row();
+            }
+        });
+        // Add previously created keys to ActionMap and "connect" them with the listener
+        KeyController.setup();
     }
 
     public void actionPerformed(ActionEvent action) {
@@ -114,11 +112,11 @@ public class CellEditor implements ActionListener {
                 table.setModel(defaultTableModel);
                 break;
             case CellEditorTableConstants.ADD_ROW_BUTTON_COMMAND:
-                defaultTableModel = add_row(defaultTableModel);
+                add_row();
                 break;
             case CellEditorTableConstants.DELETE_ROW_BUTTON_COMMAND:
                 try {
-                    defaultTableModel = delete_row(defaultTableModel);
+                    delete_row();
                     table.setModel(defaultTableModel);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
@@ -133,23 +131,21 @@ public class CellEditor implements ActionListener {
         }
     }
 
-    private DefaultTableModel add_row(DefaultTableModel givenModel) {
-        givenModel.addRow(new Double[]{0.0, 0.0});
-        return givenModel;
+    private void add_row() {
+        defaultTableModel.addRow(new Double[]{0.0, 0.0});
     }
 
 
-    private DefaultTableModel delete_row(DefaultTableModel model) throws ArrayIndexOutOfBoundsException {
+    private void delete_row() throws ArrayIndexOutOfBoundsException {
         if (table.getSelectedRowCount() == 0)
-            model.removeRow(table.getRowCount() - 1);
+            defaultTableModel.removeRow(table.getRowCount() - 1);
         else {
             int rows_selected = table.getSelectedRowCount();
             int selectedRow = table.getSelectedRow();
             for (int i = 0; i < rows_selected; i++) {
-                model.removeRow(selectedRow);
+                defaultTableModel.removeRow(selectedRow);
             }
         }
-        return model;
     }
 
 
