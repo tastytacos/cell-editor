@@ -30,6 +30,46 @@ public class CellEditor implements ActionListener {
     private ChartPanel rightChartPanel;
     private Font font = new Font("sans-serif", Font.PLAIN, CellEditorTableConstants.DEFAULT_FONT_SIZE);
 
+    private HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
+
+    private void setup() {
+        KeyStroke key1 = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+        actionMap.put(key1, new AbstractAction("action1") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Ctrl-V pressed: " + e);
+                try {
+                    defaultTableModel = TableUtils.paste(table);
+                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
+                    table.setModel(defaultTableModel);
+                } catch (TextTransferException exeption) {
+                    exeption.printStackTrace();
+                }
+            }
+        });
+
+        KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        kfm.addKeyEventDispatcher( new KeyEventDispatcher() {
+
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                KeyStroke keyStroke = KeyStroke.getKeyStrokeForEvent(e);
+                if ( actionMap.containsKey(keyStroke) ) {
+                    final Action a = actionMap.get(keyStroke);
+                    final ActionEvent ae = new ActionEvent(e.getSource(), e.getID(), null );
+                    SwingUtilities.invokeLater( new Runnable() {
+                        @Override
+                        public void run() {
+                            a.actionPerformed(ae);
+                        }
+                    } );
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
 
     private TableModelListener tableModelListener = new TableModelListener() {
         @Override
@@ -47,7 +87,7 @@ public class CellEditor implements ActionListener {
         frame.setBounds(CellEditorTableConstants.x_coordinate, CellEditorTableConstants.y_coordinate, CellEditorTableConstants.width, CellEditorTableConstants.height);
         filename = CellEditorTableConstants.DEFAULT_NAME;
         // setting the panel with save and load button
-        frame.setTitle(filename + CellEditorTableConstants.QH_EDITOR);
+        frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
 
         // initializing file managers
         fileManagerHashMap.put(CellEditorTableConstants.XLS_FORMAT, new XlsFile());
@@ -55,19 +95,11 @@ public class CellEditor implements ActionListener {
         fileManagerHashMap.put(CellEditorTableConstants.TXT_FORMAT, new TXTFile());
         //Next line provides displaying mistakes and messages on the appropriate screen
         TableUtils.setComponent(frame);
+        setup();
     }
 
     public void actionPerformed(ActionEvent action) {
         switch (action.getActionCommand()) {
-            case CellEditorTableConstants.PASTE_BUTTON_COMMAND:
-                try {
-                    defaultTableModel = TableUtils.paste(table);
-                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
-                    table.setModel(defaultTableModel);
-                } catch (TextTransferException e) {
-                    e.printStackTrace();
-                }
-                break;
             case CellEditorTableConstants.SAVE_AS_BUTTON_COMMAND:
                 save_table_as();
                 break;
@@ -183,9 +215,6 @@ public class CellEditor implements ActionListener {
         //
         minusButton = createButton("Delete row", CellEditorTableConstants.DELETE_ROW_BUTTON_COMMAND, font);
         minusButton.addActionListener(this);
-        //
-        JButton pasteButton = createButton("Paste", CellEditorTableConstants.PASTE_BUTTON_COMMAND, font);
-        pasteButton.addActionListener(this);
         // setting the panel with adding and deleting the rows in table
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
@@ -194,7 +223,6 @@ public class CellEditor implements ActionListener {
         topPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         topPanel.add(minusButton);
         topPanel.add(Box.createRigidArea(new Dimension(20, 0)));
-        topPanel.add(pasteButton);
         frame.add(topPanel, BorderLayout.NORTH);
         //
         table.setModel(defaultTableModel);
@@ -373,7 +401,7 @@ public class CellEditor implements ActionListener {
 
             if (load_data != null) {
                 filename = file.getAbsolutePath();
-                frame.setTitle(filename + CellEditorTableConstants.QH_EDITOR);
+                frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
             }
             rows_amount = load_data.size() / 2;
             cols_amount = CellEditorTableConstants.DEFAULT_COLS_AMOUNT;
