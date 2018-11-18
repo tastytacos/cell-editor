@@ -124,10 +124,11 @@ public class CellEditor implements ActionListener {
                 break;
             case CellEditorTableConstants.BUILD_XY_GRAPH:
                 if (TableUtils.validData(defaultTableModel)) {
-                    defaultTableModel = TableUtils.checkForBlankCells(defaultTableModel);
+                    defaultTableModel = TableUtils.checkForBlankCells(table);
                     GraphBuilder.displayXYLineGraph(defaultTableModel);
                     table.setModel(defaultTableModel);
                 }
+                break;
         }
     }
 
@@ -150,7 +151,8 @@ public class CellEditor implements ActionListener {
 
 
     public CellEditor() {
-        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT, CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
+                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
         defaultTableModel.addTableModelListener(tableModelListener);
         initComponents();
         frame.addWindowListener(new WindowAdapter() {
@@ -299,7 +301,7 @@ public class CellEditor implements ActionListener {
             save_table_as();
         } else {
             if (TableUtils.validData(defaultTableModel)) {
-                defaultTableModel = TableUtils.checkForBlankCells(defaultTableModel);
+                defaultTableModel = TableUtils.checkForBlankCells(table);
 
                 File file = new File(pathname);
                 defaultTableModel = TableUtils.sortTable(table);
@@ -315,7 +317,7 @@ public class CellEditor implements ActionListener {
 
     private void save_table_as() {
         if (TableUtils.validData(defaultTableModel)) {
-            defaultTableModel = TableUtils.checkForBlankCells(defaultTableModel);
+            defaultTableModel = TableUtils.checkForBlankCells(table);
             CustomJFileChooser fc = new CustomJFileChooser(CURRENT_DIRECTORY_PATH);
 
             int returnVal = fc.showDialog(frame, "Save file as");
@@ -342,7 +344,6 @@ public class CellEditor implements ActionListener {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    TableUtils.displayMessageOnScreen("The file is saved. " + System.lineSeparator() + " Data there is sorted!");
                     filename = file.getAbsolutePath();
                 }
             }

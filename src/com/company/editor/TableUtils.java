@@ -43,7 +43,8 @@ class TableUtils {
         return containsDouble;
     }
 
-    static DefaultTableModel checkForBlankCells(DefaultTableModel defaultTableModel) {
+    static DefaultTableModel checkForBlankCells(JTable table) {
+        DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
         for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
             for (int j = 0; j < defaultTableModel.getColumnCount(); j++) {
                 String data_element = defaultTableModel.getValueAt(i, j).toString();
