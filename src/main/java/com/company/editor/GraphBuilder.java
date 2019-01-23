@@ -1,4 +1,4 @@
-package com.company.editor;
+package java.com.company.editor;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

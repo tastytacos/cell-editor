@@ -1,4 +1,4 @@
-package com.company.editor;
+package java.com.company.editor;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;

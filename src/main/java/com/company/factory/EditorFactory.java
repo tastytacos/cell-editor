@@ -1,6 +1,6 @@
-package com.company.factory;
+package java.com.company.factory;
 
-import com.company.editor.CellEditor;
+import java.com.company.editor.CellEditor;
 
 import javax.swing.*;
 

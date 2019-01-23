@@ -1,8 +1,8 @@
-package com.company.editor;
+package java.com.company.editor;
 
 
-import com.company.factory.CellEditorMapPanel;
-import com.company.factory.DoubleCellUnit;
+import java.com.company.factory.CellEditorMapPanel;
+import java.com.company.factory.DoubleCellUnit;
 import org.jfree.chart.ChartPanel;
 
 import javax.swing.*;
