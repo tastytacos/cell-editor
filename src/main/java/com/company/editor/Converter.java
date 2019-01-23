@@ -1,4 +1,6 @@
-package java.com.company.editor;
+package com.company.editor;
+
+import com.company.editor.TextTransferException;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;

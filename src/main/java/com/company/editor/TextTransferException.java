@@ -1,4 +1,4 @@
-package java.com.company.editor;
+package com.company.editor;
 
 class TextTransferException extends Exception {
     TextTransferException() {

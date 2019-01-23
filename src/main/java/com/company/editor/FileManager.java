@@ -1,4 +1,4 @@
-package java.com.company.editor;
+package com.company.editor;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -6,7 +6,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.com.company.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.*;
 import java.util.*;

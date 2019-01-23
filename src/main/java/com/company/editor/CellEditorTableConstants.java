@@ -1,4 +1,4 @@
-package java.com.company.editor;
+package com.company.editor;
 import java.awt.*;
 import java.io.File;
 
