@@ -5,8 +5,6 @@ import com.company.editor.TextTransferException;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 
-import static jdk.nashorn.internal.objects.Global.print;
-
 
 interface Converter {
     public DefaultTableModel convert() throws TextTransferException;

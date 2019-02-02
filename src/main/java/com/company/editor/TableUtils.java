@@ -6,6 +6,7 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -59,34 +60,16 @@ class TableUtils {
     }
 
     static DefaultTableModel sortTable(JTable table) {
-        double[][] cells_array = new double[table.getRowCount()][table.getColumnCount()];
-        for (int i = 0; i < cells_array.length; i++) {
-            for (int j = 0; j < cells_array[i].length; j++) {
-                cells_array[i][j] = Double.parseDouble(table.getValueAt(i, j).toString());      // this complicated way is only one way out
+        List<Double> doubles = new ArrayList<>();
+        int rowsAmount = table.getRowCount();
+        int colsAmount = table.getColumnCount();
+        for (int i = 0; i < rowsAmount; i++) {
+            for (int j = 0; j < colsAmount; j++) {
+                doubles.add(Double.parseDouble(table.getValueAt(i, j).toString()));      // this complicated way is only one way out
             }
         }
-        double[][] sorted_array = sort(cells_array);
-        List<Double> sorted_list = new ArrayList<>();
-        for (int i = 0; i < cells_array.length; i++) {
-            for (int j = 0; j < cells_array[i].length; j++) {
-                sorted_list.add(sorted_array[i][j]);
-            }
-        }
-        return fillTableModel(sorted_array.length, sorted_array[0].length, CellEditorTableConstants.NAME_COLUMNS, sorted_list);
-    }
-
-    private static double[][] sort(double[][] array) {
-        double[] tmp;
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 1; j < array.length - i; j++) {
-                if (array[j - 1][0] > array[j][0]) {
-                    tmp = array[j - 1];
-                    array[j - 1] = array[j];
-                    array[j] = tmp;
-                }
-            }
-        }
-        return array;
+        Collections.sort(doubles);
+        return fillTableModel(rowsAmount, colsAmount, CellEditorTableConstants.NAME_COLUMNS, doubles);
     }
 
     /**
