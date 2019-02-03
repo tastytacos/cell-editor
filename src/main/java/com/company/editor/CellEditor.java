@@ -13,7 +13,6 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.Key;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -325,10 +324,11 @@ public class CellEditor implements ActionListener {
                 File file = fc.getSelectedFile();
                 String fileExtension = null;
                 try {
-                    fileExtension = TableUtils.getFileExtension(file);
-                } catch (IndexOutOfBoundsException e) {
-                    // Catching this exception means that the extension wasn't typed and it should be determined
-                    // according to it's FileFilter
+                    TableUtils.getFileExtension(file);
+                } catch (IndexOutOfBoundsException | FilenameContainingDotException e) {
+                    // Catching this exception means that the extension wasn't typed or the name of the file contains
+                    // one or more dots without extension .txt, .xls or any other allowed extension (i.e. filename is 08.09.2010)
+                    // In both of these cases file should be determined according to it's FileFilter
                     CustomFileFilter customFileFilter = (CustomFileFilter) fc.getFileFilter();
                     System.out.println(customFileFilter.getMyExtension());
                     fileExtension = customFileFilter.getMyExtension();
@@ -360,8 +360,12 @@ public class CellEditor implements ActionListener {
      */
     private void save(File saveFile, DefaultTableModel defaultTableModel) throws IOException {
         String fileName = saveFile.toString();
-        String fileExtension;
-        fileExtension = TableUtils.getFileExtension(saveFile);
+        String fileExtension = null;
+        try {
+            fileExtension = TableUtils.getFileExtension(saveFile);
+        } catch (FilenameContainingDotException e) {
+            e.printStackTrace();
+        }
         File file = new File(fileName);
         System.out.println(fileName);
         FileManager fileManager = fileManagerHashMap.get(fileExtension);
@@ -380,7 +384,12 @@ public class CellEditor implements ActionListener {
         if (returnVal == CustomJFileChooser.APPROVE_OPTION) {     // File is chosen and opened
             CURRENT_DIRECTORY_PATH = forLoadFileChooser.getCurrentDirectory().getAbsolutePath();
             File file = forLoadFileChooser.getSelectedFile();
-            String fileExtension = TableUtils.getFileExtension(file);
+            String fileExtension = null;
+            try {
+                fileExtension = TableUtils.getFileExtension(file);
+            } catch (FilenameContainingDotException e) {
+                e.printStackTrace();
+            }
 
             FileManager fileManager = fileManagerHashMap.get(fileExtension);
             try {
