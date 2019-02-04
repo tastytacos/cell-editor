@@ -1,4 +1,4 @@
-package com.company.editor;
+package com.company.editor.exceptions;
 
 public class FilenameContainingDotException extends Exception{
     public FilenameContainingDotException() {

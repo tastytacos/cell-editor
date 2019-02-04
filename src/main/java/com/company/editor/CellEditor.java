@@ -1,5 +1,7 @@
 package com.company.editor;
 
+import com.company.editor.exceptions.FilenameContainingDotException;
+import com.company.editor.exceptions.TextTransferException;
 import com.company.factory.CellEditorMapPanel;
 import com.company.factory.DoubleCellUnit;
 import org.jfree.chart.ChartPanel;
@@ -322,11 +324,11 @@ public class CellEditor implements ActionListener {
             if (returnVal == CustomJFileChooser.APPROVE_OPTION) {
                 CURRENT_DIRECTORY_PATH = fc.getCurrentDirectory().getAbsolutePath();
                 File file = fc.getSelectedFile();
-                String fileExtension = null;
+                String fileExtension;
                 try {
                     TableUtils.getFileExtension(file);
                 } catch (IndexOutOfBoundsException | FilenameContainingDotException e) {
-                    // Catching this exception means that the extension wasn't typed or the name of the file contains
+                    // Catching this exceptions means that the extension wasn't typed or the name of the file contains
                     // one or more dots without extension .txt, .xls or any other allowed extension (i.e. filename is 08.09.2010)
                     // In both of these cases file should be determined according to it's FileFilter
                     CustomFileFilter customFileFilter = (CustomFileFilter) fc.getFileFilter();
@@ -355,8 +357,6 @@ public class CellEditor implements ActionListener {
      * After, {@link FileManager} save method is called, which is overridden in each extended class.
      * The key of this map is {@link String} extension of files (etc. .xls, .xlsx, .txt)
      *
-     * @param saveFile
-     * @throws IOException
      */
     private void save(File saveFile, DefaultTableModel defaultTableModel) throws IOException {
         String fileName = saveFile.toString();

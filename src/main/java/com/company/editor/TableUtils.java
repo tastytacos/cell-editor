@@ -1,5 +1,8 @@
 package com.company.editor;
 
+import com.company.editor.exceptions.FilenameContainingDotException;
+import com.company.editor.exceptions.TextTransferException;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -16,11 +19,11 @@ class TableUtils {
             CellEditorTableConstants.XLS_FORMAT,
             CellEditorTableConstants.XLSX_FORMAT};
 
-    public static void setComponent(Component component) {
+    static void setComponent(Component component) {
         TableUtils.component = component;
     }
 
-    public static boolean validData(TableModel table_model) {
+    static boolean validData(TableModel table_model) {
         String data_element;
         for (int i = 0; i < table_model.getRowCount(); i++) {
             for (int j = 0; j < table_model.getColumnCount(); j++) {
@@ -47,7 +50,7 @@ class TableUtils {
         return containsDouble;
     }
 
-    public static DefaultTableModel checkForBlankCells(JTable table) {
+    static DefaultTableModel checkForBlankCells(JTable table) {
         DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
         for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
             for (int j = 0; j < defaultTableModel.getColumnCount(); j++) {
@@ -62,7 +65,7 @@ class TableUtils {
         return defaultTableModel;
     }
 
-    public static DefaultTableModel sortTable(JTable table) {
+    static DefaultTableModel sortTable(JTable table) {
         List<Double> doubles = new ArrayList<>();
         int rowsAmount = table.getRowCount();
         int colsAmount = table.getColumnCount();
@@ -83,7 +86,7 @@ class TableUtils {
      * @param columns_name {@link String} array names of the columns
      * @return {@link DefaultTableModel} defaultTableModel
      */
-    public static DefaultTableModel fillTableModel(int rows, int columns, String[] columns_name) {
+    static DefaultTableModel fillTableModel(int rows, int columns, String[] columns_name) {
         DefaultTableModel model = new DefaultTableModel(rows, columns);
         model.setColumnIdentifiers(columns_name);
         for (int i = 0; i < rows; i++) {
@@ -105,7 +108,7 @@ class TableUtils {
      * @param valuesList   the {@link}
      * @return {@link DefaultTableModel} defaultTableModel
      */
-    public static DefaultTableModel fillTableModel(int rows, int columns, String[] columns_name, List<Double> valuesList) {
+    static DefaultTableModel fillTableModel(int rows, int columns, String[] columns_name, List<Double> valuesList) {
         DefaultTableModel model = new DefaultTableModel(rows, columns);
         model.setColumnIdentifiers(columns_name);
         // assigning the data
@@ -121,12 +124,12 @@ class TableUtils {
         return model;
     }
 
-    public static void displayMessageOnScreen(String message) {
+    static void displayMessageOnScreen(String message) {
         JOptionPane.showMessageDialog(component, message);
     }
 
 
-    public static String getFileExtension(File file) throws IndexOutOfBoundsException, FilenameContainingDotException {
+    static String getFileExtension(File file) throws IndexOutOfBoundsException, FilenameContainingDotException {
         String fileName = file.toString();
         String substring = fileName.substring(fileName.lastIndexOf('.'));
         for (String extension : allowedExtensions) {
@@ -140,9 +143,9 @@ class TableUtils {
     }
 
 
-    public static DefaultTableModel paste(JTable table) throws TextTransferException {
+    static DefaultTableModel paste(JTable table) throws TextTransferException {
         DefaultTableModel newDefaultTableModel = (DefaultTableModel) table.getModel();
-        String copyString = null;
+        String copyString;
         try {
             copyString = TextTransfer.getClipboardContents();
         } catch (Exception e) {
@@ -167,7 +170,7 @@ class TableUtils {
         return newDefaultTableModel;
     }
 
-    public static List<Double> getListFromModelColumn(DefaultTableModel defaultTableModel, int column) {
+    static List<Double> getListFromModelColumn(DefaultTableModel defaultTableModel, int column) {
         List<Double> return_list = new ArrayList<>();
         for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
             return_list.add(Double.parseDouble(defaultTableModel.getValueAt(i, column).toString()));
