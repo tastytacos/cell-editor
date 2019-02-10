@@ -87,7 +87,12 @@ public class CellEditor implements ActionListener {
         KeyController.getActionMap().put(deleteRowHotKey, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                delete_row();
+                try {
+                    delete_row();
+                }catch (IndexOutOfBoundsException e1){
+                    TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
+                    e1.printStackTrace();
+                }
             }
         });
         // Add previously created keys to ActionMap and "connect" them with the listener
@@ -118,6 +123,7 @@ public class CellEditor implements ActionListener {
                     table.setModel(defaultTableModel);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
+                    e.printStackTrace();
                 }
                 break;
             case CellEditorTableConstants.BUILD_XY_GRAPH:
