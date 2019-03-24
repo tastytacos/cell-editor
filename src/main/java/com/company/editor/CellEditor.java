@@ -168,7 +168,7 @@ public class CellEditor implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 try {
                     delete_row();
-                } catch (IndexOutOfBoundsException e1) {
+                }catch (IndexOutOfBoundsException e1){
                     TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
                     e1.printStackTrace();
                 }
@@ -205,6 +205,7 @@ public class CellEditor implements ActionListener {
                     table.setModel(defaultTableModel);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
+                    e.printStackTrace();
                 }
                 break;
             case CellEditorTableConstants.BUILD_XY_GRAPH_COMMAND:
