@@ -1,9 +1,8 @@
 package com.company.editor;
 
-import org.junit.After;
-import org.junit.Before;
+import com.company.editor.exceptions.FilenameContainingDotException;
+import com.company.editor.utils.TableUtils;
 import org.junit.Test;
-import sun.applet.Main;
 
 import java.io.File;
 

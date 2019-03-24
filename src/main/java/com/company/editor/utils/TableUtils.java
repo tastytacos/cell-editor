@@ -1,4 +1,9 @@
-package com.company.editor;
+package com.company.editor.utils;
+
+import com.company.editor.*;
+import com.company.editor.exceptions.FilenameContainingDotException;
+import com.company.editor.exceptions.TextTransferException;
+import com.company.language_tools.languageble.LanguageButton;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -10,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-class TableUtils {
+public class TableUtils {
     private static Component component;
     private static String[] allowedExtensions = {CellEditorTableConstants.TXT_FORMAT,
             CellEditorTableConstants.XLS_FORMAT,
@@ -25,7 +30,7 @@ class TableUtils {
         for (int i = 0; i < table_model.getRowCount(); i++) {
             for (int j = 0; j < table_model.getColumnCount(); j++) {
                 data_element = table_model.getValueAt(i, j).toString();
-                if (!containsDouble(data_element, i, j) && !data_element.equals("")) {
+                if (!containsDouble(data_element) && !data_element.equals("")) {
                     displayMessageOnScreen("The wrong value is detected in " + (j + 1) +
                             " column and " + (i + 1) + " row. " + System.lineSeparator() + " The table can not be fixed " +
                             "until the value will not be changed to double!");
@@ -36,7 +41,7 @@ class TableUtils {
         return true;
     }
 
-    private static boolean containsDouble(String data, int row, int cols) {
+    private static boolean containsDouble(String data) {
         boolean containsDouble;
         try {
             Double.parseDouble(data);
@@ -135,14 +140,14 @@ class TableUtils {
             }
         }
         if (!substring.equals(""))
-            throw new FilenameContainingDotException();
+            throw new FilenameContainingDotException("Non supportive extension");
         return substring;
     }
 
 
     public static DefaultTableModel paste(JTable table) throws TextTransferException {
         DefaultTableModel newDefaultTableModel = (DefaultTableModel) table.getModel();
-        String copyString = null;
+        String copyString;
         try {
             copyString = TextTransfer.getClipboardContents();
         } catch (Exception e) {
@@ -173,6 +178,30 @@ class TableUtils {
             return_list.add(Double.parseDouble(defaultTableModel.getValueAt(i, column).toString()));
         }
         return return_list;
+    }
+
+
+    /**
+     * This method creates and returns a {@link JButton} object with the next parameters
+     *
+     * @param buttonText    text which will be on button
+     * @param buttonCommand it's command name
+     * @return JButton object equipped with attributes mentioned above
+     */
+    static JButton createButton(String buttonText, String buttonCommand, Font font) {
+        JButton button = new JButton();
+        button.setText(buttonText);
+        button.setActionCommand(buttonCommand);
+        button.setFont(font);
+        return button;
+    }
+
+    public static LanguageButton createButton(String key, String buttonText, String buttonCommand, Font font){
+        LanguageButton button = new LanguageButton(key);
+        button.setText(buttonText);
+        button.setActionCommand(buttonCommand);
+        button.setFont(font);
+        return button;
     }
 }
 

@@ -1,13 +1,17 @@
-package com.company.editor;
+package com.company.editor.utils;
 
-import com.company.editor.TextTransferException;
+import com.company.editor.CellEditorTableConstants;
+import com.company.editor.exceptions.TextTransferException;
+import com.company.editor.exceptions.WrongCellDataTypeException;
+import com.company.editor.exceptions.WrongDataTypeException;
+import com.company.editor.exceptions.WrongRowCellAmountException;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 
 
 interface Converter {
-    public DefaultTableModel convert() throws TextTransferException;
+    DefaultTableModel convert() throws TextTransferException;
 }
 
 

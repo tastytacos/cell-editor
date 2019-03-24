@@ -1,4 +1,6 @@
-package com.company.editor;
+package com.company.editor.utils;
+
+import com.company.editor.exceptions.TextTransferException;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -18,8 +20,8 @@ class TextTransfer {
      * @return any text found on the {@link Clipboard}; if none found, return an
      * empty {@link String}.
      */
-    public static String getClipboardContents() throws TextTransferException{
-        String result = "";
+    static String getClipboardContents() throws TextTransferException {
+        String result;
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable contents = clipboard.getContents(null);
         try {

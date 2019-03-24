@@ -1,8 +1,21 @@
 package com.company.editor;
 
+import com.company.editor.exceptions.FilenameContainingDotException;
+import com.company.editor.exceptions.TextTransferException;
+import com.company.editor.utils.GraphBuilder;
+import com.company.editor.utils.KeyController;
+import com.company.editor.utils.StringInterpretation;
+import com.company.editor.utils.TableUtils;
 import com.company.factory.CellEditorMapPanel;
 import com.company.factory.DoubleCellUnit;
+import com.company.language_tools.LanguageChoiceWindow;
+import com.company.language_tools.LanguageManager;
+import com.company.language_tools.languageble.LanguageButton;
+import com.company.language_tools.languageble.LanguageChartPanel;
+import com.company.language_tools.languageble.LanguageMenu;
+import com.company.language_tools.languageble.LanguageMenuItem;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -13,9 +26,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 
 //todo provide mouse cursor control on table
@@ -26,30 +38,95 @@ public class CellEditor implements ActionListener {
     private JTable table = new JTable();
     private DefaultTableModel defaultTableModel;
     private Map<String, FileManager> fileManagerHashMap = new HashMap<>();
-    private ChartPanel rightChartPanel;
+    private LanguageChartPanel rightChartPanel;
     private Font font = new Font("sans-serif", Font.PLAIN, CellEditorTableConstants.DEFAULT_FONT_SIZE);
+    private Locale defaultLocale = Locale.getDefault();
+    // initializing locales
+    private Locale englishLocale = new Locale("en", "EN");
+    private Locale russianLocale = new Locale("ru", "RU");
+    private Locale ukrainianLocale = new Locale("ua", "UA");
+    private ResourceBundle resourceBundle;
+    private String[] languages;
+
+
+    private LanguageManager languageManager = new LanguageManager();
+    private Map<String, Locale> localeMap = new HashMap<>();
 
     {
         frame.setBounds(CellEditorTableConstants.x_coordinate, CellEditorTableConstants.y_coordinate, CellEditorTableConstants.width, CellEditorTableConstants.height);
         filename = CellEditorTableConstants.DEFAULT_NAME;
-        // setting the panel with save and load button
         frame.setTitle(filename + CellEditorTableConstants.CELL_EDITOR);
-
         // initializing file managers
         fileManagerHashMap.put(CellEditorTableConstants.XLS_FORMAT, new XlsFile());
         fileManagerHashMap.put(CellEditorTableConstants.XLSX_FORMAT, new XlsxFile());
         fileManagerHashMap.put(CellEditorTableConstants.TXT_FORMAT, new TXTFile());
+        // setting locales and their keys in localeMap
+        localeMap.put(englishLocale.getLanguage(), englishLocale);
+        localeMap.put(ukrainianLocale.getLanguage(), ukrainianLocale);
+        localeMap.put(russianLocale.getLanguage(), russianLocale);
         //Next line provides displaying mistakes and messages on the appropriate screen
         TableUtils.setComponent(frame);
         initKeys();
     }
 
 
+    public CellEditor() {
+        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
+                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+        defaultTableModel.addTableModelListener(tableModelListener);
+        initComponents();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                e.getWindow().dispose();
+            }
+        });
+    }
+
+    public CellEditor(Locale givenLocale) {
+        defaultLocale = givenLocale;
+        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
+                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+        defaultTableModel.addTableModelListener(tableModelListener);
+        initComponents();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                e.getWindow().dispose();
+            }
+        });
+    }
+
+    public CellEditor(final CellEditorMapPanel panel, final Object key) {
+        final DoubleCellUnit unit = (DoubleCellUnit) panel.getMap().get(key);
+        defaultTableModel = handleTableModel(unit.getUnitDefaultTableModel());
+        defaultTableModel.addTableModelListener(tableModelListener);
+        initComponents();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (!(TableUtils.validData(defaultTableModel))) {
+                    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                } else {
+                    List<Double> firstValue = TableUtils.getListFromModelColumn(defaultTableModel, 0);
+                    List<Double> secondValue = TableUtils.getListFromModelColumn(defaultTableModel, 1);
+                    unit.setUnitFirstValue(firstValue);
+                    unit.setUnitSecondValue(secondValue);
+                    unit.setUnitTableModel(defaultTableModel);
+                    panel.setMapElement(key, unit);
+                    e.getWindow().dispose();
+                }
+            }
+        });
+    }
+
     private TableModelListener tableModelListener = new TableModelListener() {
         @Override
         public void tableChanged(TableModelEvent e) {
             try {
-                rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
+                rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
+                        resourceBundle.getString("chart_panel_x_axis_name"),
+                        resourceBundle.getString("chart_panel_y_axis_name")));
             } catch (NumberFormatException e1) {
                 TableUtils.displayMessageOnScreen("Can't built the graph." + System.lineSeparator() + "The value on " +
                         (e.getFirstRow() + 1) + " row" + " and " + (e.getColumn() + 1) + " column is invalid");
@@ -67,7 +144,9 @@ public class CellEditor implements ActionListener {
                 try {
                     defaultTableModel = TableUtils.paste(table);
                     defaultTableModel.addTableModelListener(tableModelListener);
-                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
+                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
+                            resourceBundle.getString("chart_panel_x_axis_name"),
+                            resourceBundle.getString("chart_panel_y_axis_name")));
                     table.setModel(defaultTableModel);
                 } catch (TextTransferException exception) {
                     exception.printStackTrace();
@@ -111,7 +190,10 @@ public class CellEditor implements ActionListener {
                 defaultTableModel = load_table();
                 defaultTableModel.setColumnIdentifiers(CellEditorTableConstants.NAME_COLUMNS);
                 defaultTableModel.addTableModelListener(tableModelListener);
-                rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel));
+                rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel,
+                        resourceBundle.getString("chart_panel_title"),
+                        resourceBundle.getString("chart_panel_x_axis_name"),
+                        resourceBundle.getString("chart_panel_y_axis_name")));
                 table.setModel(defaultTableModel);
                 break;
             case CellEditorTableConstants.ADD_ROW_BUTTON_COMMAND:
@@ -126,12 +208,36 @@ public class CellEditor implements ActionListener {
                     e.printStackTrace();
                 }
                 break;
-            case CellEditorTableConstants.BUILD_XY_GRAPH:
+            case CellEditorTableConstants.BUILD_XY_GRAPH_COMMAND:
                 if (TableUtils.validData(defaultTableModel)) {
                     defaultTableModel = TableUtils.checkForBlankCells(table);
-                    GraphBuilder.displayXYLineGraph(defaultTableModel);
+                    Rectangle windowRect = new Rectangle(
+                            CellEditorTableConstants.x_coordinate,
+                            CellEditorTableConstants.y_coordinate,
+                            CellEditorTableConstants.width,
+                            CellEditorTableConstants.height);
+                    GraphBuilder.displayXYLineGraph(defaultTableModel,
+                            windowRect,
+                            resourceBundle.getString("chart_panel_title"),
+                            resourceBundle.getString("chart_panel_x_axis_name"),
+                            resourceBundle.getString("chart_panel_y_axis_name"));
                     table.setModel(defaultTableModel);
                 }
+                break;
+            case CellEditorTableConstants.LANGUAGE_SETTINGS_COMMAND:
+                String[] langArray = new String[]{
+                        englishLocale.getLanguage(),
+                        russianLocale.getLanguage(),
+                        ukrainianLocale.getLanguage()};
+                String chosenLanguage = LanguageChoiceWindow.displayWindow(frame, languages, resourceBundle,
+                        "language_window_title", "language_window_message");
+                System.out.println(chosenLanguage);
+                if (chosenLanguage != null) {
+                    defaultLocale = localeMap.get(StringInterpretation.getStringFromStrings(languages, langArray, chosenLanguage));
+                    languageManager.changeLanguage(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
+                    resourceBundle = ResourceBundle.getBundle(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
+                }
+                // todo update language in all elements
                 break;
         }
     }
@@ -154,50 +260,13 @@ public class CellEditor implements ActionListener {
     }
 
 
-    public CellEditor() {
-        defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
-                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
-        defaultTableModel.addTableModelListener(tableModelListener);
-        initComponents();
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                e.getWindow().dispose();
-            }
-        });
-    }
-
-    public CellEditor(final CellEditorMapPanel panel, final Object key) {
-        final DoubleCellUnit unit = (DoubleCellUnit) panel.getMap().get(key);
-        defaultTableModel = handleTableModel(unit.getUnitDefaultTableModel());
-        defaultTableModel.addTableModelListener(tableModelListener);
-        initComponents();
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                if (!(TableUtils.validData(defaultTableModel))) {
-                    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                } else {
-                    List<Double> firstValue = TableUtils.getListFromModelColumn(defaultTableModel, 0);
-                    List<Double> secondValue = TableUtils.getListFromModelColumn(defaultTableModel, 1);
-                    unit.setUnitFirstValue(firstValue);
-                    unit.setUnitSecondValue(secondValue);
-                    unit.setUnitTableModel(defaultTableModel);
-                    panel.setMapElement(key, unit);
-                    e.getWindow().dispose();
-                }
-            }
-        });
-    }
-
     private DefaultTableModel handleTableModel(DefaultTableModel model) {
         DefaultTableModel defaultTableModel;
-        if (model.getColumnCount() == 0){
+        if (model.getColumnCount() == 0) {
             defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
                     CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
             // Otherwise just set already created model
-        }
-        else {
+        } else {
             defaultTableModel = model;
         }
         return defaultTableModel;
@@ -205,17 +274,23 @@ public class CellEditor implements ActionListener {
 
 
     private void initComponents() {
-        JButton plusButton, minusButton;
+        resourceBundle = ResourceBundle.getBundle(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
+        languages = new String[]{
+                resourceBundle.getString("language_str_english"),
+                resourceBundle.getString("language_str_russian"),
+                resourceBundle.getString("language_str_ukrainian")};
+        LanguageButton plusButton;
+        LanguageButton minusButton;
         // set buttons
         JMenuBar topMenuBar = initMenuBar();
         // add the menu bar to a frame
         frame.setJMenuBar(topMenuBar);
         //
-        plusButton = createButton("Add row", CellEditorTableConstants.ADD_ROW_BUTTON_COMMAND, font);
+        plusButton = TableUtils.createButton("add_row_label", resourceBundle.getString("add_row_label"), CellEditorTableConstants.ADD_ROW_BUTTON_COMMAND, font);
         plusButton.addActionListener(this);
         plusButton.setMargin(new Insets(2, 17, 2, 25));
         //
-        minusButton = createButton("Delete row", CellEditorTableConstants.DELETE_ROW_BUTTON_COMMAND, font);
+        minusButton = TableUtils.createButton("delete_row_label", resourceBundle.getString("delete_row_label"), CellEditorTableConstants.DELETE_ROW_BUTTON_COMMAND, font);
         minusButton.addActionListener(this);
         // setting the panel with adding and deleting the rows in table
         JPanel topPanel = new JPanel();
@@ -232,8 +307,12 @@ public class CellEditor implements ActionListener {
         table.setFont(font);
         JScrollPane scroll_pane = new JScrollPane(table);
         //
-        rightChartPanel = new ChartPanel(GraphBuilder.getXYChart(defaultTableModel));
+        rightChartPanel = new LanguageChartPanel(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
+                resourceBundle.getString("chart_panel_x_axis_name"),
+                resourceBundle.getString("chart_panel_y_axis_name")), "chart_panel_title");
         frame.add(rightChartPanel, BorderLayout.EAST);
+        //
+        languageManager.subscribeElement(plusButton, minusButton, rightChartPanel);
         //
         frame.add(scroll_pane, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -245,58 +324,63 @@ public class CellEditor implements ActionListener {
         UIManager.put("Menu.font", font);
         UIManager.put("MenuItem.font", font);
         //
-        JMenu fileMenu = new JMenu("File");
+        LanguageMenu fileMenu = new LanguageMenu("file_menu_label");
+        fileMenu.setText(resourceBundle.getString("file_menu_label"));
         fileMenu.setMnemonic(KeyEvent.VK_F);
         //
-        JMenuItem loadFileMenuItem = new JMenuItem("Load");
+        LanguageMenuItem loadFileMenuItem = new LanguageMenuItem("load_menu_item_label");
+        loadFileMenuItem.setText(resourceBundle.getString("load_menu_item_label"));
         loadFileMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
         loadFileMenuItem.setActionCommand(CellEditorTableConstants.LOAD_BUTTON_COMMAND);
         loadFileMenuItem.addActionListener(this);
         //
         fileMenu.add(loadFileMenuItem);
         //
-        JMenuItem saveFileMenuItem = new JMenuItem("Save");
+        LanguageMenuItem saveFileMenuItem = new LanguageMenuItem("save_menu_item_label");
+        saveFileMenuItem.setText(resourceBundle.getString("save_menu_item_label"));
         saveFileMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         saveFileMenuItem.setActionCommand(CellEditorTableConstants.SAVE_BUTTON_COMMAND);
         saveFileMenuItem.addActionListener(this);
         //
         fileMenu.add(saveFileMenuItem);
         //
-        JMenuItem saveAsFileMenuItem = new JMenuItem("Save as");
+        LanguageMenuItem saveAsFileMenuItem = new LanguageMenuItem("save_as_menu_item_label");
+        saveAsFileMenuItem.setText(resourceBundle.getString("save_as_menu_item_label"));
         saveAsFileMenuItem.setAccelerator(KeyStroke.getKeyStroke("control alt S"));
         saveAsFileMenuItem.setActionCommand(CellEditorTableConstants.SAVE_AS_BUTTON_COMMAND);
         saveAsFileMenuItem.addActionListener(this);
         //
         fileMenu.add(saveAsFileMenuItem);
+        languageManager.subscribeElement(fileMenu, loadFileMenuItem, saveFileMenuItem, saveAsFileMenuItem);
         //
-        JMenu graphMenu = new JMenu("Draw Graph");
+        LanguageMenu graphMenu = new LanguageMenu("graph_menu_label");
+        graphMenu.setText(resourceBundle.getString("graph_menu_label"));
         graphMenu.setMnemonic(KeyEvent.VK_G);
         //
-        JMenuItem buildXYGraphMenuItem = new JMenuItem("Build XY Graph");
-        buildXYGraphMenuItem.setActionCommand(CellEditorTableConstants.BUILD_XY_GRAPH);
+        LanguageMenuItem buildXYGraphMenuItem = new LanguageMenuItem("build_xy_grap_menu_item_label");
+        buildXYGraphMenuItem.setText(resourceBundle.getString("build_xy_grap_menu_item_label"));
+        buildXYGraphMenuItem.setActionCommand(CellEditorTableConstants.BUILD_XY_GRAPH_COMMAND);
         buildXYGraphMenuItem.addActionListener(this);
         //
         graphMenu.add(buildXYGraphMenuItem);
+        languageManager.subscribeElement(graphMenu, buildXYGraphMenuItem);
+        //
+        LanguageMenu settingsMenu = new LanguageMenu("settings_menu_label");
+        settingsMenu.setText(resourceBundle.getString("settings_menu_label"));
+        settingsMenu.setMnemonic(KeyEvent.VK_S);
+        //
+        LanguageMenuItem languageMenuItem = new LanguageMenuItem("language_menu_item_label");
+        languageMenuItem.setText(resourceBundle.getString("language_menu_item_label"));
+        languageMenuItem.setActionCommand(CellEditorTableConstants.LANGUAGE_SETTINGS_COMMAND);
+        languageMenuItem.addActionListener(this);
+        //
+        settingsMenu.add(languageMenuItem);
+        languageManager.subscribeElement(settingsMenu, languageMenuItem);
         //
         topMenuBar.add(fileMenu);
         topMenuBar.add(graphMenu);
-
+        topMenuBar.add(settingsMenu);
         return topMenuBar;
-    }
-
-    /**
-     * This method creates and returns a {@link JButton} object with the next parameters
-     *
-     * @param buttonText    text which will be on button
-     * @param buttonCommand it's command name
-     * @return JButton object equipped with attributes mentioned above
-     */
-    private JButton createButton(String buttonText, String buttonCommand, Font font) {
-        JButton button = new JButton();
-        button.setText(buttonText);
-        button.setActionCommand(buttonCommand);
-        button.setFont(font);
-        return button;
     }
 
 
@@ -328,11 +412,11 @@ public class CellEditor implements ActionListener {
             if (returnVal == CustomJFileChooser.APPROVE_OPTION) {
                 CURRENT_DIRECTORY_PATH = fc.getCurrentDirectory().getAbsolutePath();
                 File file = fc.getSelectedFile();
-                String fileExtension = null;
+                String fileExtension;
                 try {
                     TableUtils.getFileExtension(file);
                 } catch (IndexOutOfBoundsException | FilenameContainingDotException e) {
-                    // Catching this exception means that the extension wasn't typed or the name of the file contains
+                    // Catching this exceptions means that the extension wasn't typed or the name of the file contains
                     // one or more dots without extension .txt, .xls or any other allowed extension (i.e. filename is 08.09.2010)
                     // In both of these cases file should be determined according to it's FileFilter
                     CustomFileFilter customFileFilter = (CustomFileFilter) fc.getFileFilter();
@@ -360,9 +444,6 @@ public class CellEditor implements ActionListener {
      * To do this it initializes {@link FileManager} variable according of the format of the file to save.
      * After, {@link FileManager} save method is called, which is overridden in each extended class.
      * The key of this map is {@link String} extension of files (etc. .xls, .xlsx, .txt)
-     *
-     * @param saveFile
-     * @throws IOException
      */
     private void save(File saveFile, DefaultTableModel defaultTableModel) throws IOException {
         String fileName = saveFile.toString();

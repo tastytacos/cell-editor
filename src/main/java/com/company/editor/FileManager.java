@@ -1,5 +1,6 @@
 package com.company.editor;
 
+import com.company.editor.utils.TableUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -13,13 +14,18 @@ import java.util.*;
 
 abstract class FileManager {
     public abstract void save(File file, DefaultTableModel tableModel) throws IOException;
+
     public abstract List<Double> load(File file) throws Exception;
-    int findWorkSheet(Workbook workBook){
+
+    int findWorkSheet(Workbook workBook) {
         int index = 0;
-        for (int i=0;i<workBook.getNumberOfSheets();i++){
+        for (int i = 0; i < workBook.getNumberOfSheets(); i++) {
             Sheet sheet = workBook.getSheetAt(i);
             Iterator<Row> rowIterator = sheet.iterator();
-            if (rowIterator.hasNext()) {index = i; break;}
+            if (rowIterator.hasNext()) {
+                index = i;
+                break;
+            }
         }
         return index;
     }
@@ -91,7 +97,7 @@ class XlsFile extends FileManager {
     }
 }
 
-class XlsxFile extends FileManager{
+class XlsxFile extends FileManager {
     @Override
     public void save(File file, DefaultTableModel tableModel) throws IOException {
         Workbook workbook = new XSSFWorkbook();
@@ -102,9 +108,9 @@ class XlsxFile extends FileManager{
         q.setCellValue("Q");
         Cell h = firstRow.createCell(1);
         h.setCellValue("H");
-        for (int i = 1; i < tableModel.getRowCount() + 1; i++){
+        for (int i = 1; i < tableModel.getRowCount() + 1; i++) {
             Row row = sheet.createRow(i);
-            for (int j = 0; j < tableModel.getColumnCount(); j ++){
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
                 Cell cell = row.createCell(j);
                 cell.setCellValue((Double.parseDouble(tableModel.getValueAt(i - 1, j).toString())));
             }
@@ -133,7 +139,7 @@ class XlsxFile extends FileManager{
             CellType cellType;
             while (cellIterator.hasNext()) {
                 columnCounter++;
-                if (columnCounter > CellEditorTableConstants.DEFAULT_COLS_AMOUNT){
+                if (columnCounter > CellEditorTableConstants.DEFAULT_COLS_AMOUNT) {
                     break;
                 }
                 Cell cell = cellIterator.next();
@@ -144,7 +150,7 @@ class XlsxFile extends FileManager{
                             " Check your table and fix it!");
                     return null;
                 }
-                if (cellType.toString().equals("NUMERIC")){
+                if (cellType.toString().equals("NUMERIC")) {
                     returnList.add(cell.getNumericCellValue());
                 }
             }
@@ -155,7 +161,7 @@ class XlsxFile extends FileManager{
     }
 }
 
-class TXTFile extends FileManager{
+class TXTFile extends FileManager {
     @Override
     public void save(File file, DefaultTableModel tableModel) throws IOException {
         RandomAccessFile rand = new RandomAccessFile(file, "rw");
