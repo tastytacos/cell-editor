@@ -1,6 +1,7 @@
 package com.company.editor;
 
 import com.company.editor.exceptions.FilenameContainingDotException;
+import com.company.editor.utils.TableUtils;
 import org.junit.Test;
 
 import java.io.File;
