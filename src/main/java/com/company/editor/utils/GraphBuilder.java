@@ -19,7 +19,6 @@ public class GraphBuilder {
     public static void displayXYLineGraph(DefaultTableModel tableModel, Rectangle windowParams, String chartTitle,
                                           String qAxisLabel, String hAxisLAbel) {
         JFrame graphFrame = new JFrame();
-//        graphFrame.setBounds(CellEditorTableConstants.x_coordinate, CellEditorTableConstants.y_coordinate, CellEditorTableConstants.graphBuilderWidth, CellEditorTableConstants.graphBuilderHeight);
         graphFrame.setBounds(windowParams);
         graphFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -35,7 +34,7 @@ public class GraphBuilder {
 
     public static JFreeChart getXYChart(DefaultTableModel tableModel, String chartTitle, String xAxisLabel, String yAxisLabel) {
         XYSeriesCollection dataset = new XYSeriesCollection();
-        XYSeries tsSeries = new XYSeries("Time Series");
+        XYSeries tsSeries = new XYSeries("Data");
         double x = 0, z = 0;
         for (int i = 0; i < tableModel.getRowCount(); i++){
             for (int j = 0; j < tableModel.getColumnCount() - 1; j++){
@@ -45,9 +44,6 @@ public class GraphBuilder {
             tsSeries.add(x, z);
         }
         dataset.addSeries(tsSeries);
-//        String chartTitle = "Visualize Time Series";
-//        String xAxisLabel = "Q";
-//        String yAxisLabel = "H";
 
         JFreeChart chart = ChartFactory.createXYLineChart(chartTitle, xAxisLabel, yAxisLabel, dataset,
                 PlotOrientation.VERTICAL, true, true, false);
