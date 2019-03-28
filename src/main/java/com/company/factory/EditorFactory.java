@@ -8,7 +8,7 @@ import java.util.Locale;
 
 public class EditorFactory {
     public static void main(String[] args){
-        new CellEditor(new Locale("ru", "RU"));
+        new CellEditor(new Locale("en", "EN"));
     }
 
     public static void getCellEditor(){

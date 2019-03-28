@@ -29,7 +29,6 @@ public class TableUtilsTest {
     public void testGetFileExtensionWithDotWithoutExtension() throws FilenameContainingDotException {
         TableUtils.getFileExtension(new File("21.02.2010"));
     }
-
 }
 
 

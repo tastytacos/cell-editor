@@ -2,10 +2,7 @@ package com.company.editor;
 
 import com.company.editor.exceptions.FilenameContainingDotException;
 import com.company.editor.exceptions.TextTransferException;
-import com.company.editor.utils.GraphBuilder;
-import com.company.editor.utils.KeyController;
-import com.company.editor.utils.StringInterpretation;
-import com.company.editor.utils.TableUtils;
+import com.company.editor.utils.*;
 import com.company.factory.CellEditorMapPanel;
 import com.company.factory.DoubleCellUnit;
 import com.company.language_tools.LanguageChoiceWindow;
@@ -128,8 +125,11 @@ public class CellEditor implements ActionListener {
                         resourceBundle.getString("chart_panel_x_axis_name"),
                         resourceBundle.getString("chart_panel_y_axis_name")));
             } catch (NumberFormatException e1) {
-                TableUtils.displayMessageOnScreen("Can't built the graph." + System.lineSeparator() + "The value on " +
-                        (e.getFirstRow() + 1) + " row" + " and " + (e.getColumn() + 1) + " column is invalid");
+                TableUtils.displayMessageOnScreen(WarningMessageFactory.getWarningFromRowColsMessage(
+                        e.getFirstRow() + 1,
+                        e.getColumn() + 1,
+                        resourceBundle),
+                        resourceBundle.getString("language_error_message_label"), JOptionPane.ERROR_MESSAGE);
             }
         }
     };
@@ -140,7 +140,6 @@ public class CellEditor implements ActionListener {
         KeyController.getActionMap().put(pasteHotKey, new AbstractAction("paste") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Ctrl-V pressed: " + e);
                 try {
                     defaultTableModel = TableUtils.paste(table);
                     defaultTableModel.addTableModelListener(tableModelListener);
@@ -168,8 +167,8 @@ public class CellEditor implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 try {
                     delete_row();
-                }catch (IndexOutOfBoundsException e1){
-                    TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
+                } catch (IndexOutOfBoundsException e1) {
+                    TableUtils.displayMessageOnScreen(WarningMessageFactory.getDeletingImpossibleMessage(resourceBundle));
                     e1.printStackTrace();
                 }
             }
@@ -204,7 +203,8 @@ public class CellEditor implements ActionListener {
                     delete_row();
                     table.setModel(defaultTableModel);
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    TableUtils.displayMessageOnScreen("The table is empty. " + System.lineSeparator() + " Deleting is impossible!");
+                    TableUtils.displayMessageOnScreen(WarningMessageFactory.getDeletingImpossibleMessage(resourceBundle));
+
                     e.printStackTrace();
                 }
                 break;
@@ -237,7 +237,6 @@ public class CellEditor implements ActionListener {
                     languageManager.changeLanguage(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
                     resourceBundle = ResourceBundle.getBundle(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
                 }
-                // todo update language in all elements
                 break;
         }
     }
@@ -474,7 +473,7 @@ public class CellEditor implements ActionListener {
             String fileExtension = null;
             try {
                 fileExtension = TableUtils.getFileExtension(file);
-            } catch (FilenameContainingDotException e) {
+            } catch (FilenameContainingDotException | IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
 
@@ -483,11 +482,11 @@ public class CellEditor implements ActionListener {
                 load_data = fileManager.load(file);
             } catch (FileNotFoundException e) {
                 load_data = null;
-                TableUtils.displayMessageOnScreen("File is not found");
+                TableUtils.displayMessageOnScreen(WarningMessageFactory.getFileNotFoundMessage(resourceBundle));
                 e.printStackTrace();
             } catch (Exception e) {
                 load_data = null;
-                TableUtils.displayMessageOnScreen("File was damaged or has incorrect format. Please check it!");
+                TableUtils.displayMessageOnScreen(WarningMessageFactory.getDamagedFileMessage(resourceBundle));
                 e.printStackTrace();
             }
 

@@ -130,6 +130,10 @@ public class TableUtils {
         JOptionPane.showMessageDialog(component, message);
     }
 
+    public static void displayMessageOnScreen(String message, String title, int MessageType) {
+        JOptionPane.showMessageDialog(component, message, title, MessageType);
+    }
+
 
     public static String getFileExtension(File file) throws IndexOutOfBoundsException, FilenameContainingDotException {
         String fileName = file.toString();
@@ -196,7 +200,7 @@ public class TableUtils {
         return button;
     }
 
-    public static LanguageButton createButton(String key, String buttonText, String buttonCommand, Font font){
+    public static LanguageButton createButton(String key, String buttonText, String buttonCommand, Font font) {
         LanguageButton button = new LanguageButton(key);
         button.setText(buttonText);
         button.setActionCommand(buttonCommand);
