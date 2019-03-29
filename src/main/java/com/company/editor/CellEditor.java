@@ -33,6 +33,7 @@ public class CellEditor implements ActionListener {
     private String filename; // Used for Save button
     private JFrame frame = new JFrame();
     private JTable table = new JTable();
+    private JSplitPane splitPane;
     private DefaultTableModel defaultTableModel;
     private Map<String, FileManager> fileManagerHashMap = new HashMap<>();
     private LanguageChartPanel rightChartPanel;
@@ -309,11 +310,13 @@ public class CellEditor implements ActionListener {
         rightChartPanel = new LanguageChartPanel(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
                 resourceBundle.getString("chart_panel_x_axis_name"),
                 resourceBundle.getString("chart_panel_y_axis_name")), "chart_panel_title");
-        frame.add(rightChartPanel, BorderLayout.EAST);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scroll_pane, rightChartPanel);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setResizeWeight(0.9);
+        frame.add(splitPane);
         //
         languageManager.subscribeElement(plusButton, minusButton, rightChartPanel);
         //
-        frame.add(scroll_pane, BorderLayout.CENTER);
         frame.setVisible(true);
     }
 
