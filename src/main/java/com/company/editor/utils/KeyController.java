@@ -1,4 +1,4 @@
-package com.company.editor;
+package com.company.editor.utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,14 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
-class KeyController {
+public class KeyController {
     private static HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
 
-    static HashMap<KeyStroke, Action> getActionMap() {
+    public static HashMap<KeyStroke, Action> getActionMap() {
         return actionMap;
     }
 
-    static void setup() {
+    public static void setup() {
         KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         kfm.addKeyEventDispatcher( new KeyEventDispatcher() {
             @Override

@@ -1,4 +1,4 @@
-package com.company.editor;
+package com.company.editor.utils;
 
 import com.company.editor.exceptions.TextTransferException;
 

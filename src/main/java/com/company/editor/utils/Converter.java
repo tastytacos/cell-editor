@@ -1,5 +1,6 @@
-package com.company.editor;
+package com.company.editor.utils;
 
+import com.company.editor.CellEditorTableConstants;
 import com.company.editor.exceptions.TextTransferException;
 import com.company.editor.exceptions.WrongCellDataTypeException;
 import com.company.editor.exceptions.WrongDataTypeException;
