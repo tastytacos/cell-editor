@@ -20,7 +20,7 @@ class TextTransfer {
      * @return any text found on the {@link Clipboard}; if none found, return an
      * empty {@link String}.
      */
-    static String getClipboardContents() throws TextTransferException {
+    public static String getClipboardContents() throws TextTransferException {
         String result;
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable contents = clipboard.getContents(null);
