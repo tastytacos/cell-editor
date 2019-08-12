@@ -1,7 +1,6 @@
 package com.company.language_tools.languageble;
 
 import javax.swing.*;
-import java.lang.annotation.Native;
 import java.util.Locale;
 import java.util.ResourceBundle;
 

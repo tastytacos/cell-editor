@@ -25,11 +25,13 @@ public class TableUtils {
         TableUtils.component = component;
     }
 
+
     public static boolean validData(TableModel table_model) {
         String data_element;
         for (int i = 0; i < table_model.getRowCount(); i++) {
             for (int j = 0; j < table_model.getColumnCount(); j++) {
                 data_element = table_model.getValueAt(i, j).toString();
+                // todo replace this part of code by throwing Exception
                 if (!containsDouble(data_element) && !data_element.equals("")) {
                     displayMessageOnScreen("The wrong value is detected in " + (j + 1) +
                             " column and " + (i + 1) + " row. " + System.lineSeparator() + " The table can not be fixed " +
@@ -57,6 +59,7 @@ public class TableUtils {
         for (int i = 0; i < defaultTableModel.getRowCount(); i++) {
             for (int j = 0; j < defaultTableModel.getColumnCount(); j++) {
                 String data_element = defaultTableModel.getValueAt(i, j).toString();
+                // todo replace this part of code by throwing Exception
                 if (data_element.equals("")) {
                     displayMessageOnScreen("The empty value is detected in " + (j + 1) +
                             " column" + " and " + (i + 1) + " row." + System.lineSeparator() + "  It will be filled with 0.0");

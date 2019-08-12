@@ -6,25 +6,25 @@ import static org.junit.Assert.*;
 
 public class StringInterpretationTest {
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testExceptionStringException() {
+        String[] firstArray = new String[5];
+        String[] secondArray = new String[3];
+        StringInterpretation.getStringFromStrings(firstArray, secondArray, "does not matter");
+    }
+
     @Test
-    public void testGenerateString(){
-        String[] actual = {"Hello", "Test", "Here"};
-        String expected = "HelloTestHere";
-        assertEquals(expected, StringInterpretation.generateString(actual));
-        String[] actual1 = {" Hello ", "Test ", "Here "};
-        String expected1 = " Hello Test Here ";
-        assertEquals(expected1, StringInterpretation.generateString(actual1));
-        String[] actual3 = {"", "", ""};
-        String expected3 = "";
-        assertEquals(expected3, StringInterpretation.generateString(actual3));
-    }
+    public void testGetStringFromStrings(){
+        String[] firstArray = {"One", "Two", "Three"};
+        String[] secondArray = {"Some", "Words", "Here"};
+        String chosenWord = "Buzz";
+        String actual = StringInterpretation.getStringFromStrings(firstArray, secondArray, chosenWord);
+        assertNull(actual);
 
-    @Test(expected = NullPointerException.class)
-    public void testGenerateStringNull(){
-        String[] actual = null;
-        StringInterpretation.generateString(actual);
+        chosenWord = "One";
+        String expected = "Two";
+        actual = StringInterpretation.getStringFromStrings(firstArray, secondArray, chosenWord);
+        assertEquals(expected, actual);
     }
-
-    //todo write tests for getStringFromStrings method
 
 }

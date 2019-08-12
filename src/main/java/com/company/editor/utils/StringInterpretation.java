@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class StringInterpretation {
 
-    public static String getStringFromStrings(String[] firstStrings, String[] secondStrings, String chosenString){
+    public static String getStringFromStrings(String[] firstStrings, String[] secondStrings, String chosenString) {
         if (firstStrings.length != secondStrings.length)
             throw new IllegalArgumentException();
         Map<String, String> map = new HashMap<>();
@@ -15,10 +15,5 @@ public class StringInterpretation {
         }
         return map.get(chosenString);
     }
-    public static String generateString(String ... strings){
-        if (strings == null) {
-            throw new NullPointerException();
-        }
-        return Arrays.stream(strings).reduce("", String::concat);
-    }
+
 }
