@@ -5,6 +5,7 @@ import com.company.editor.exceptions.TextTransferException;
 import com.company.editor.utils.*;
 import com.company.factory.CellEditorMapPanel;
 import com.company.factory.DoubleCellUnit;
+import com.company.language_tools.EditorConfigs;
 import com.company.language_tools.LanguageChoiceWindow;
 import com.company.language_tools.LanguageManager;
 import com.company.language_tools.languageble.LanguageButton;
@@ -81,7 +82,8 @@ public class CellEditor implements ActionListener {
         });
     }
 
-    public CellEditor(Locale givenLocale) {
+    public CellEditor(Locale givenLocale, EditorConfigs editorConfigs) {
+        CellEditorTableConstants.setNameColumns(editorConfigs.getRowsName());
         defaultLocale = givenLocale;
         defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
                 CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);

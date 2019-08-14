@@ -2,17 +2,21 @@ package com.company.factory;
 
 
 import com.company.editor.CellEditor;
+import com.company.language_tools.EditorConfigs;
 
 import javax.swing.*;
 import java.util.Locale;
 
 public class EditorFactory {
-    public static void main(String[] args){
-        new CellEditor(new Locale("en", "EN"));
+    static EditorConfigs editorConfigs = new EditorConfigs(new String[]{"A1", "B1"}, "MyGraph",
+            new String[]{"axis1", "axis2"});
+
+    public static void main(String[] args) {
+        new CellEditor(new Locale("en", "EN"), editorConfigs);
     }
 
-    public static void getCellEditor(){
-         SwingUtilities.invokeLater(new Runnable(){
+    public static void getCellEditor() {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 new CellEditor();
@@ -20,15 +24,16 @@ public class EditorFactory {
         });
     }
 
-    public static void getCellEditor(Locale locale){
+    public static void getCellEditor(Locale locale) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new CellEditor(locale);
+                new CellEditor(locale, editorConfigs);
             }
         });
     }
-    public static void getCellEditor(final CellEditorMapPanel panel, final Object key){
+
+    public static void getCellEditor(final CellEditorMapPanel panel, final Object key) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

@@ -15,9 +15,9 @@ public class CellEditorTableConstants {
     public static final int y_coordinate = 200;
     // data constants
     // for Table class only
-    public static final String[] NAME_COLUMNS = {
-            "Q",
-            "H"
+    public static String[] NAME_COLUMNS = {
+            "A",
+            "B"
     };
     public static final int DEFAULT_COLS_AMOUNT = 2;
     static final int DEFAULT_ROWS_AMOUNT = 3;
@@ -42,4 +42,12 @@ public class CellEditorTableConstants {
     //names
     static final String DEFAULT_NAME = " New Table";
     static final String CELL_EDITOR = " - Cell-Editor";
+
+    public static String[] getNameColumns() {
+        return NAME_COLUMNS;
+    }
+
+    public static void setNameColumns(String[] nameColumns) {
+        NAME_COLUMNS = nameColumns;
+    }
 }
