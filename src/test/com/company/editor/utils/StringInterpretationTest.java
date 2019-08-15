@@ -22,7 +22,7 @@ public class StringInterpretationTest {
         assertNull(actual);
 
         chosenWord = "One";
-        String expected = "Two";
+        String expected = "Some";
         actual = StringInterpretation.getStringFromStrings(firstArray, secondArray, chosenWord);
         assertEquals(expected, actual);
     }
