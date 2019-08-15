@@ -15,7 +15,7 @@ public class CellEditorTableConstants {
     public static final int y_coordinate = 200;
     // data constants
     // for Table class only
-    public static String[] NAME_COLUMNS = {
+    private static String[] NAME_COLUMNS = {
             "A",
             "B"
     };

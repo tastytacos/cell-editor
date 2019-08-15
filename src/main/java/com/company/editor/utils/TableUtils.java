@@ -80,7 +80,7 @@ public class TableUtils {
             }
         }
         Collections.sort(doubles);
-        return fillTableModel(rowsAmount, colsAmount, CellEditorTableConstants.NAME_COLUMNS, doubles);
+        return fillTableModel(rowsAmount, colsAmount, CellEditorTableConstants.getNameColumns(), doubles);
     }
 
     /**
@@ -171,7 +171,7 @@ public class TableUtils {
 
         try {
             newDefaultTableModel = converter.convert();
-            newDefaultTableModel.setColumnIdentifiers(CellEditorTableConstants.NAME_COLUMNS);
+            newDefaultTableModel.setColumnIdentifiers(CellEditorTableConstants.getNameColumns());
         } catch (TextTransferException e) {
             throw new TextTransferException(e.getMessage(), e.getCause());
         }

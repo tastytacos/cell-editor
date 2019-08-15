@@ -46,6 +46,8 @@ public class CellEditor implements ActionListener {
     private Locale ukrainianLocale = new Locale("ua", "UA");
     private ResourceBundle resourceBundle;
     private String[] languages;
+    private EditorConfigs editorConfigs = new EditorConfigs(CellEditorTableConstants.getNameColumns(), "",
+            new String[]{"X", "Y"});
 
 
     private LanguageManager languageManager = new LanguageManager();
@@ -71,7 +73,7 @@ public class CellEditor implements ActionListener {
 
     public CellEditor() {
         defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
-                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.getNameColumns());
         defaultTableModel.addTableModelListener(tableModelListener);
         initComponents();
         frame.addWindowListener(new WindowAdapter() {
@@ -84,9 +86,10 @@ public class CellEditor implements ActionListener {
 
     public CellEditor(Locale givenLocale, EditorConfigs editorConfigs) {
         CellEditorTableConstants.setNameColumns(editorConfigs.getRowsName());
+        this.editorConfigs = editorConfigs;
         defaultLocale = givenLocale;
         defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
-                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+                CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.getNameColumns());
         defaultTableModel.addTableModelListener(tableModelListener);
         initComponents();
         frame.addWindowListener(new WindowAdapter() {
@@ -124,9 +127,10 @@ public class CellEditor implements ActionListener {
         @Override
         public void tableChanged(TableModelEvent e) {
             try {
-                rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
-                        resourceBundle.getString("chart_panel_x_axis_name"),
-                        resourceBundle.getString("chart_panel_y_axis_name")));
+                rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel,
+                        editorConfigs.getGraphTitle() + " " + resourceBundle.getString("chart_panel_title"),
+                        editorConfigs.getGraphAxis()[0],
+                        editorConfigs.getGraphAxis()[1]));
             } catch (NumberFormatException e1) {
                 TableUtils.displayMessageOnScreen(WarningMessageFactory.getWarningFromRowColsMessage(
                         e.getFirstRow() + 1,
@@ -137,6 +141,30 @@ public class CellEditor implements ActionListener {
         }
     };
 
+    public CellEditor(CellEditorMapPanel panel, Object key, EditorConfigs editorConfigs) {
+        this.editorConfigs = editorConfigs;
+        final DoubleCellUnit unit = (DoubleCellUnit) panel.getMap().get(key);
+        defaultTableModel = handleTableModel(unit.getUnitDefaultTableModel());
+        defaultTableModel.addTableModelListener(tableModelListener);
+        initComponents();
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (!(TableUtils.validData(defaultTableModel))) {
+                    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                } else {
+                    List<Double> firstValue = TableUtils.getListFromModelColumn(defaultTableModel, 0);
+                    List<Double> secondValue = TableUtils.getListFromModelColumn(defaultTableModel, 1);
+                    unit.setUnitFirstValue(firstValue);
+                    unit.setUnitSecondValue(secondValue);
+                    unit.setUnitTableModel(defaultTableModel);
+                    panel.setMapElement(key, unit);
+                    e.getWindow().dispose();
+                }
+            }
+        });
+    }
+
 
     private void initKeys() {
         KeyStroke pasteHotKey = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
@@ -146,9 +174,10 @@ public class CellEditor implements ActionListener {
                 try {
                     defaultTableModel = TableUtils.paste(table);
                     defaultTableModel.addTableModelListener(tableModelListener);
-                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
-                            resourceBundle.getString("chart_panel_x_axis_name"),
-                            resourceBundle.getString("chart_panel_y_axis_name")));
+                    rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel,
+                            editorConfigs.getGraphTitle() + " " + resourceBundle.getString("chart_panel_title"),
+                            editorConfigs.getGraphAxis()[0],
+                            editorConfigs.getGraphAxis()[1]));
                     table.setModel(defaultTableModel);
                 } catch (TextTransferException exception) {
                     exception.printStackTrace();
@@ -190,12 +219,12 @@ public class CellEditor implements ActionListener {
                 break;
             case CellEditorTableConstants.LOAD_BUTTON_COMMAND:
                 defaultTableModel = load_table();
-                defaultTableModel.setColumnIdentifiers(CellEditorTableConstants.NAME_COLUMNS);
+                defaultTableModel.setColumnIdentifiers(CellEditorTableConstants.getNameColumns());
                 defaultTableModel.addTableModelListener(tableModelListener);
                 rightChartPanel.setChart(GraphBuilder.getXYChart(defaultTableModel,
-                        resourceBundle.getString("chart_panel_title"),
-                        resourceBundle.getString("chart_panel_x_axis_name"),
-                        resourceBundle.getString("chart_panel_y_axis_name")));
+                        editorConfigs.getGraphTitle() + " " + resourceBundle.getString("chart_panel_title"),
+                        editorConfigs.getGraphAxis()[0],
+                        editorConfigs.getGraphAxis()[1]));
                 table.setModel(defaultTableModel);
                 break;
             case CellEditorTableConstants.ADD_ROW_BUTTON_COMMAND:
@@ -221,9 +250,9 @@ public class CellEditor implements ActionListener {
                             CellEditorTableConstants.height);
                     GraphBuilder.displayXYLineGraph(defaultTableModel,
                             windowRect,
-                            resourceBundle.getString("chart_panel_title"),
-                            resourceBundle.getString("chart_panel_x_axis_name"),
-                            resourceBundle.getString("chart_panel_y_axis_name"));
+                            editorConfigs.getGraphTitle() + resourceBundle.getString("chart_panel_title"),
+                            editorConfigs.getGraphAxis()[0],
+                            editorConfigs.getGraphAxis()[1]);
                     table.setModel(defaultTableModel);
                 }
                 break;
@@ -237,6 +266,7 @@ public class CellEditor implements ActionListener {
                 System.out.println(chosenLanguage);
                 if (chosenLanguage != null) {
                     defaultLocale = localeMap.get(StringInterpretation.getStringFromStrings(languages, langArray, chosenLanguage));
+                    // todo charts title changes incorrectly.
                     languageManager.changeLanguage(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
                     resourceBundle = ResourceBundle.getBundle(CellEditorTableConstants.RESOURCE_BUNDLE_BASE_NAME, defaultLocale);
                 }
@@ -266,7 +296,7 @@ public class CellEditor implements ActionListener {
         DefaultTableModel defaultTableModel;
         if (model.getColumnCount() == 0) {
             defaultTableModel = TableUtils.fillTableModel(CellEditorTableConstants.DEFAULT_ROWS_AMOUNT,
-                    CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.NAME_COLUMNS);
+                    CellEditorTableConstants.DEFAULT_COLS_AMOUNT, CellEditorTableConstants.getNameColumns());
             // Otherwise just set already created model
         } else {
             defaultTableModel = model;
@@ -309,9 +339,10 @@ public class CellEditor implements ActionListener {
         table.setFont(font);
         JScrollPane scroll_pane = new JScrollPane(table);
         //
-        rightChartPanel = new LanguageChartPanel(GraphBuilder.getXYChart(defaultTableModel, resourceBundle.getString("chart_panel_title"),
-                resourceBundle.getString("chart_panel_x_axis_name"),
-                resourceBundle.getString("chart_panel_y_axis_name")), "chart_panel_title");
+        rightChartPanel = new LanguageChartPanel(GraphBuilder.getXYChart(defaultTableModel,
+                editorConfigs.getGraphTitle() + " " + resourceBundle.getString("chart_panel_title"),
+                editorConfigs.getGraphAxis()[0],
+                editorConfigs.getGraphAxis()[1]), "chart_panel_title");
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scroll_pane, rightChartPanel);
         splitPane.setOneTouchExpandable(true);
         splitPane.setResizeWeight(0.9);
@@ -501,7 +532,8 @@ public class CellEditor implements ActionListener {
             }
             rows_amount = load_data.size() / 2;
             cols_amount = CellEditorTableConstants.DEFAULT_COLS_AMOUNT;
-            fromLoadFileModel = TableUtils.fillTableModel(rows_amount, cols_amount, CellEditorTableConstants.NAME_COLUMNS, load_data);
+            fromLoadFileModel = TableUtils.fillTableModel(rows_amount, cols_amount,
+                    CellEditorTableConstants.getNameColumns(), load_data);
         } else
             fromLoadFileModel = defaultTableModel;
         return fromLoadFileModel;

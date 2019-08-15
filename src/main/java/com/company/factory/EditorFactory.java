@@ -8,11 +8,11 @@ import javax.swing.*;
 import java.util.Locale;
 
 public class EditorFactory {
-    static EditorConfigs editorConfigs = new EditorConfigs(new String[]{"A1", "B1"}, "MyGraph",
+    private static EditorConfigs editorConfigs = new EditorConfigs(new String[]{"A1", "B1"}, "MyGraph",
             new String[]{"axis1", "axis2"});
 
     public static void main(String[] args) {
-        new CellEditor(new Locale("en", "EN"), editorConfigs);
+        new CellEditor();
     }
 
     public static void getCellEditor() {
@@ -38,6 +38,16 @@ public class EditorFactory {
             @Override
             public void run() {
                 new CellEditor(panel, key);
+            }
+        });
+    }
+
+
+    public static void getCellEditor(final CellEditorMapPanel panel, final Object key, EditorConfigs editorConfigs) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new CellEditor(panel, key, editorConfigs);
             }
         });
     }
