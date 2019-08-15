@@ -142,6 +142,7 @@ public class CellEditor implements ActionListener {
     };
 
     public CellEditor(CellEditorMapPanel panel, Object key, EditorConfigs editorConfigs) {
+        CellEditorTableConstants.setNameColumns(editorConfigs.getRowsName());
         this.editorConfigs = editorConfigs;
         final DoubleCellUnit unit = (DoubleCellUnit) panel.getMap().get(key);
         defaultTableModel = handleTableModel(unit.getUnitDefaultTableModel());

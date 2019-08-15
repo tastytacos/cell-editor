@@ -12,7 +12,7 @@ public class EditorFactory {
             new String[]{"axis1", "axis2"});
 
     public static void main(String[] args) {
-        new CellEditor();
+        new CellEditor(new Locale("en", "EN"), editorConfigs);
     }
 
     public static void getCellEditor() {
